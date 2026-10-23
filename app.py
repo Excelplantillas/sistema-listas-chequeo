@@ -10,20 +10,59 @@ st.set_page_config(
     layout="centered"
 )
 
-# Estilos CSS personalizados
+# Estilos CSS personalizados: Fondo general gris/azul oscuro, tarjeta negra y animación profesional
 st.markdown("""
     <style>
+    /* Cambiar el fondo general de toda la aplicación a un gris/azul oscuro elegante */
+    .stApp {
+        background-color: #1e2229 !important;
+    }
+
+    /* Animación profesional de aparición (Fade In con desplazamiento suave) */
+    @keyframes fadeInSlide {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Aplicar la animación a los elementos principales */
+    .main-title, .subtitle, [data-testid="stForm"] {
+        animation: fadeInSlide 0.8s ease-out forwards;
+    }
+
+    /* Fondo del panel de acceso de color negro moderno (un tono más oscuro que el fondo general) */
+    [data-testid="stForm"] {
+        background-color: #121212 !important;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+        border: 1px solid #2a2a2a;
+    }
+
+    /* Ajustar los textos dentro del panel negro para que se vean perfectos en blanco */
+    [data-testid="stForm"] label {
+        color: #ffffff !important;
+        font-weight: 600;
+    }
+
+    /* Títulos principales en color blanco para que resalten sobre el nuevo fondo oscuro */
     .main-title {
         text-align: center;
-        color: #1f4e78;
+        color: #ffffff !important;
         font-weight: 700;
         margin-bottom: 20px;
     }
     .subtitle {
         text-align: center;
-        color: #595959;
+        color: #b0b8c4 !important;
         margin-bottom: 30px;
     }
+    
     .stButton>button {
         width: 100%;
         background-color: #2e75b6;
