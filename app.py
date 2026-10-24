@@ -63,21 +63,47 @@ st.markdown("""
         margin-bottom: 30px;
     }
     
-    .stButton>button {
+    /* Relleno del botón en azul verdoso oscuro; el cursor intensifica el brillo */
+    .stButton > button,
+    [data-testid="stFormSubmitButton"] button {
         width: 100%;
-        background-color: #2e75b6;
-        color: white;
+        background: #143f43 !important;
+        background-color: #143f43 !important;
+        color: #ffffff !important;
         font-size: 16px;
-        font-weight: bold;
-        padding: 12px;
+        font-weight: 700;
+        padding: 12px 16px;
         border-radius: 8px;
-        border: none;
-        transition: 0.3s;
+        border: 1px solid #246b70 !important;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+        transition: background-color 0.25s ease, box-shadow 0.25s ease,
+                    transform 0.25s ease, border-color 0.25s ease;
     }
-    .stButton>button:hover {
-        background-color: #1f4e78;
-        color: white;
+
+    .stButton > button:hover,
+    [data-testid="stFormSubmitButton"] button:hover {
+        background: #17676b !important;
+        background-color: #17676b !important;
+        color: #ffffff !important;
+        border-color: #55d9d1 !important;
+        box-shadow: 0 0 12px rgba(52, 220, 210, 0.65),
+                    0 0 24px rgba(20, 160, 170, 0.45);
+        transform: translateY(-1px);
+        cursor: pointer;
     }
+
+    .stButton > button:active,
+    [data-testid="stFormSubmitButton"] button:active {
+        background-color: #0e3438 !important;
+        transform: translateY(0);
+    }
+
+    .stButton > button:focus,
+    [data-testid="stFormSubmitButton"] button:focus {
+        outline: 2px solid #55d9d1;
+        outline-offset: 3px;
+    }
+
     </style>
 """, unsafe_allow_html=True)
 
