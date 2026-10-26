@@ -10,15 +10,13 @@ st.set_page_config(
     layout="centered"
 )
 
-# Estilos CSS personalizados: Fondo general gris/azul oscuro, tarjeta negra y animación profesional
+# Estilos CSS personalizados
 st.markdown("""
     <style>
-    /* Cambiar el fondo general de toda la aplicación a un gris/azul oscuro elegante */
     .stApp {
         background-color: #1e2229 !important;
     }
 
-    /* Animación profesional de aparición (Fade In con desplazamiento suave) */
     @keyframes fadeInSlide {
         0% {
             opacity: 0;
@@ -30,12 +28,10 @@ st.markdown("""
         }
     }
 
-    /* Aplicar la animación a los elementos principales */
     .main-title, .subtitle, [data-testid="stForm"] {
         animation: fadeInSlide 0.8s ease-out forwards;
     }
 
-    /* Fondo del panel de acceso de color negro moderno (un tono más oscuro que el fondo general) */
     [data-testid="stForm"] {
         background-color: #121212 !important;
         padding: 30px;
@@ -44,13 +40,11 @@ st.markdown("""
         border: 1px solid #2a2a2a;
     }
 
-    /* Ajustar los textos dentro del panel negro para que se vean perfectos en blanco */
     [data-testid="stForm"] label {
         color: #ffffff !important;
         font-weight: 600;
     }
 
-    /* Títulos principales en color blanco para que resalten sobre el nuevo fondo oscuro */
     .main-title {
         text-align: center;
         color: #ffffff !important;
@@ -63,7 +57,6 @@ st.markdown("""
         margin-bottom: 30px;
     }
     
-    /* Relleno del botón en azul verdoso oscuro; el cursor intensifica el brillo */
     .stButton > button,
     [data-testid="stFormSubmitButton"] button {
         width: 100%;
@@ -103,11 +96,10 @@ st.markdown("""
         outline: 2px solid #55d9d1;
         outline-offset: 3px;
     }
-
     </style>
 """, unsafe_allow_html=True)
 
-# Inicializar estado de autenticación y navegación
+# Inicializar estado
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 
@@ -127,7 +119,7 @@ def cambiar_seccion(seccion):
     st.session_state.menu_actual = seccion
     st.session_state.form_valido = False
 
-# --- PANTALLA DE ACCESO (CONTRASEÑA) ---
+# --- PANTALLA DE ACCESO ---
 if not st.session_state.autenticado:
     if os.path.exists("logo.png"):
         col_logo_l, col_logo_r = st.columns([1, 4])
@@ -151,7 +143,7 @@ if not st.session_state.autenticado:
                 else:
                     st.error("❌ Contraseña incorrecta. Intente nuevamente.")
 
-# --- MENÚ PRINCIPAL (Una vez autenticado) ---
+# --- MENÚ PRINCIPAL ---
 elif st.session_state.menu_actual == "inicio":
     if os.path.exists("logo.png"):
         col_logo, col_espacio = st.columns([1, 4])
@@ -182,7 +174,7 @@ elif st.session_state.menu_actual == "inicio":
             st.session_state.autenticado = False
             st.rerun()
 
-# --- MÓDULO 1: BÚSQUEDA DE EXPEDIENTES (23 Preguntas) ---
+# --- MÓDULO 1: BÚSQUEDA DE EXPEDIENTES ---
 elif st.session_state.menu_actual == "expedientes":
     if st.button("⬅ Volver al Menú Principal"):
         cambiar_seccion("inicio")
@@ -192,20 +184,20 @@ elif st.session_state.menu_actual == "expedientes":
     
     etapas_exp = [
         ("ETAPA 1 - VALIDACIÓN DE DATOS", [
-            ("1. Placa verificada en formato correcto", "e1_p1"),
-            ("2. Verificación de estado del automotor (Activo u otro)", "e1_p2")
+            ("1. El formato de la placa se encuentra correcto", "e1_p1"),
+            ("2. Verificación de estado del automotor (Activo u otro que afecte la información física del expediente)", "e1_p2")
         ]),
         ("ETAPA 2 - CONTROLES DE ARCHIVO", [
-            ("3. Inventario físico revisado", "e2_p3"),
-            ("4. Registro histórico por placa", "e2_p4"),
-            ("5. Registro de préstamos verificado", "e2_p5"),
+            ("3. Revisión último inventario documental", "e2_p3"),
+            ("4. Registro trazabilidad de trámites", "e2_p4"),
+            ("5. Registro trazabilidad de préstamos", "e2_p5"),
             ("6. Búsqueda de escaneos recientes", "e2_p6")
         ]),
         ("ETAPA 3 - BÚSQUEDA FÍSICA DIRECTA", [
-            ("7. Estantería correcta revisada", "e3_p7"),
-            ("8. Expedientes contiguos revisados (Formato Cruz)", "e3_p8")
+            ("7. Revisión ubicación física del expediente", "e3_p7"),
+            ("8. Expedientes contiguos revisados (En formato Cruz)", "e3_p8")
         ]),
-        ("ETAPA 4 - BÚSQUEDA POR VARIACIONES", [
+        ("ETAPA 4 - BÚSQUEDA POR VARIACIONES (Obligatorio registrar campo de observaciones con las combinaciones aplicadas)", [
             ("9. Letras y números similares", "e4_p9"),
             ("10. Placas con una letra diferente", "e4_p10"),
             ("11. Placas con un número diferente", "e4_p11"),
@@ -216,19 +208,13 @@ elif st.session_state.menu_actual == "expedientes":
             ("14. Expedientes archivados por fecha y no por placa", "e5_p14")
         ]),
         ("ETAPA 6 - ENVIADOS EN CONTENEDORES", [
-            ("15. Contenedores recibidos a partir de la fecha (2 semanas)", "e6_p15"),
-            ("16. Error de digitación del contenedor", "e6_p16"),
-            ("17. Expediente en caja equivocada", "e6_p17")
+            ("15. Contenedores recibidos a partir de la fecha (Contar dos semanas)", "e6_p15"),
+            ("16. Error de digitación de la relación recibida por contenedor", "e6_p16")
         ]),
         ("ETAPA 7 - BÚSQUEDA POR ANALISTA", [
-            ("18. Trámites gestionados por el mismo analista", "e7_p18"),
-            ("19. Carpetas físicas del analista", "e7_p19"),
-            ("20. Bandejas / archivo temporal del analista", "e7_p20"),
-            ("21. Confirmación directa con el analista", "e7_p21")
-        ]),
-        ("ETAPA 8 - BÚSQUEDA FINAL", [
-            ("22. Búsqueda en el rango de la placa", "e8_p22"),
-            ("23. Búsqueda en el rango siguiente de la placa", "e8_p23")
+            ("17. Trámites gestionados por el mismo analista", "e7_p17"),
+            ("18. Carpetas físicas del analista", "e7_p18"),
+            ("19. Bandejas / archivo temporal del analista", "e7_p19")
         ])
     ]
     
@@ -245,7 +231,6 @@ elif st.session_state.menu_actual == "expedientes":
             fecha = st.date_input("Fecha:")
             
         st.divider()
-        st.subheader("Cuestionario de Verificación (23 Preguntas)")
         
         respuestas = {}
         observaciones = {}
@@ -254,8 +239,19 @@ elif st.session_state.menu_actual == "expedientes":
             st.markdown(f"### **{nombre_etapa}**")
             for texto_pregunta, key in lista_preguntas:
                 st.markdown(f"**{texto_pregunta}**")
-                respuestas[key] = st.radio("Opción:", ["-- Seleccione --", "Sí", "No"], key=f"r_{key}", label_visibility="collapsed", horizontal=True)
-                observaciones[key] = st.text_input(f"Observaciones {key}", key=f"obs_{key}", placeholder="Observaciones opcionales...", label_visibility="collapsed")
+                respuestas[key] = st.radio(
+                    "Opción:", 
+                    ["-- Seleccione --", "Sí", "No"], 
+                    key=f"r_{key}", 
+                    label_visibility="collapsed", 
+                    horizontal=True
+                )
+                observaciones[key] = st.text_input(
+                    f"Observaciones {key}", 
+                    key=f"obs_{key}", 
+                    placeholder="Observaciones opcionales...", 
+                    label_visibility="collapsed"
+                )
                 st.write("---")
 
         submit_btn = st.form_submit_button("Validar y Generar PDF de Expedientes")
@@ -266,10 +262,10 @@ elif st.session_state.menu_actual == "expedientes":
                 st.session_state.form_valido = False
             else:
                 todas_preguntas = [item for _, lista in etapas_exp for item in lista]
-                sin_responder = [p[0] for p, k in zip(todas_preguntas, [i[1] for i in todas_preguntas]) if respuestas[k] == "-- Seleccione --"]
+                sin_responder = [p[0] for p in todas_preguntas if respuestas[p[1]] == "-- Seleccione --"]
                 
                 if sin_responder:
-                    st.error(f"⚠️ Faltan preguntas por responder. Debes completar las 23 preguntas. (Pendientes: {len(sin_responder)})")
+                    st.error(f"⚠️ Faltan preguntas por responder. Debes completar las 19 preguntas. (Pendientes: {len(sin_responder)})")
                     st.session_state.form_valido = False
                 else:
                     placa_limpia = placa.strip().upper().replace(" ", "_")
@@ -322,10 +318,10 @@ elif st.session_state.menu_actual == "expedientes":
                             obs_limpia = obs.encode('latin-1', 'ignore').decode('latin-1')
                             
                             pdf.cell(10, 6, str(item_contador), 1, 0, "C")
-                            pdf.cell(100, 6, texto_limpio, 1, 0, "L")
+                            pdf.cell(100, 6, texto_limpio[:70], 1, 0, "L")  # Truncar si es muy largo
                             pdf.cell(10, 6, marca_si, 1, 0, "C")
                             pdf.cell(10, 6, marca_no, 1, 0, "C")
-                            pdf.cell(60, 6, obs_limpia, 1, 1, "L")
+                            pdf.cell(60, 6, obs_limpia[:35], 1, 1, "L")
                             
                             item_contador += 1
                         pdf.ln(2)
@@ -350,8 +346,7 @@ elif st.session_state.menu_actual == "expedientes":
             mime="application/pdf"
         )
 
-
-# --- MÓDULO 2: BÚSQUEDA DE TRÁMITES EN SEDE (15 Preguntas) ---
+# --- MÓDULO 2: BÚSQUEDA DE TRÁMITES EN SEDE ---
 elif st.session_state.menu_actual == "sede":
     if st.button("⬅ Volver al Menú Principal"):
         cambiar_seccion("inicio")
@@ -361,29 +356,26 @@ elif st.session_state.menu_actual == "sede":
     
     etapas_sede = [
         ("ETAPA 1 - VALIDACIÓN DE DATOS", [
-            ("1. Placa verificada en formato correcto", "sede_e1_p1"),
+            ("1. El formato de la placa se encuentra correcto", "sede_e1_p1"),
             ("2. Verificación de estado del automotor (Activo u otro que afecte la información física)", "sede_e1_p2")
         ]),
         ("ETAPA 2 - CONTROLES DE ARCHIVO", [
-            ("3. Registro histórico por placa", "sede_e2_p3"),
-            ("4. Búsqueda de escaneos recientes", "sede_e2_p4")
+            ("3. Registro trazabilidad de trámites", "sede_e2_p3")
         ]),
-        ("ETAPA 3 - ENVIADOS EN CONTENEDORES (ARCHIVO)", [
-            ("5. Contenedores recibido a partir de la fecha del trámite (Contar dos semana)", "sede_e3_p5"),
-            ("6. Contenedor pendiente de apertura", "sede_e3_p6"),
-            ("7. Error de digitación del contenedor", "sede_e3_p7")
+        ("ETAPA 3 - BÚSQUEDA POR ANALISTA", [
+            ("4. Documentos físicos del analista", "sede_e3_p4"),
+            ("5. Confirmación directa con el analista", "sede_e3_p5")
         ]),
         ("ETAPA 4 - BÚSQUEDA POR SEMANA DEL TRÁMITE (SEDE)", [
-            ("8. Trámites realizados a partir de la fecha del trámite (Contar dos semana)", "sede_e4_p8"),
-            ("9. Remisión al archivo de listado de trámites contando dos semanas a partir de la fecha del trámite para busqueda", "sede_e4_p9"),
-            ("10. Error de digitación del contenedor", "sede_e4_p10"),
-            ("11. Revisión de planillas de mensajería, confirmar recibido", "sede_e4_p11"),
-            ("12. Remisión al archivo de listado de trámites recibidos en mensajería, contando dos semanas a partir de la fecha del trámite para busqueda", "sede_e4_p12")
+            ("6. Contenedores enviados a partir de la fecha del trámite (Contar dos semanas)", "sede_e4_p6"),
+            ("7. Contenedor pendiente de apertura", "sede_e4_p7"),
+            ("8. Error de digitación del contenedor", "sede_e4_p8")
         ]),
-        ("ETAPA 5 - BÚSQUEDA POR ANALISTA", [
-            ("13. Trámites gestionados por el mismo analista a partir de la fecha del trámite (Contar dos semana)", "sede_e5_p13"),
-            ("14. Documentos físicos del analista", "sede_e5_p14"),
-            ("15. Confirmación directa con el analista", "sede_e5_p15")
+        ("ETAPA 5 - BUSQUEDA POR TRÁMITES GESTIONADOS Y RECIBIDOS", [
+            ("9. Trámites gestionados por el mismo analista a partir de la fecha del trámite (Contar dos semanas)", "sede_e5_p9"),
+            ("10. Remisión a archivo de trámites gestionados por el mismo analista a partir de la fecha del trámite contando dos semanas", "sede_e5_p10"),
+            ("11. Remisión al archivo de listado de trámites de todos los analistas de la sede contando dos semanas", "sede_e5_p11"),
+            ("12. Remisión al archivo de listado de trámites recibidos en mensajería, contando dos semanas", "sede_e5_p12")
         ])
     ]
     
@@ -400,7 +392,6 @@ elif st.session_state.menu_actual == "sede":
             fecha_sede = st.date_input("Fecha:")
             
         st.divider()
-        st.subheader("Cuestionario de Verificación - Trámites en Sede (15 Preguntas)")
         
         respuestas_sede = {}
         obs_sede = {}
@@ -409,8 +400,19 @@ elif st.session_state.menu_actual == "sede":
             st.markdown(f"### **{nombre_etapa}**")
             for texto_pregunta, key in lista_preguntas:
                 st.markdown(f"**{texto_pregunta}**")
-                respuestas_sede[key] = st.radio("Opción:", ["-- Seleccione --", "Sí", "No"], key=f"r_{key}", label_visibility="collapsed", horizontal=True)
-                obs_sede[key] = st.text_input(f"Observaciones {key}", key=f"obs_{key}", placeholder="Observaciones opcionales...", label_visibility="collapsed")
+                respuestas_sede[key] = st.radio(
+                    "Opción:", 
+                    ["-- Seleccione --", "Sí", "No"], 
+                    key=f"r_{key}", 
+                    label_visibility="collapsed", 
+                    horizontal=True
+                )
+                obs_sede[key] = st.text_input(
+                    f"Observaciones {key}", 
+                    key=f"obs_{key}", 
+                    placeholder="Observaciones opcionales...", 
+                    label_visibility="collapsed"
+                )
                 st.write("---")
 
         submit_sede = st.form_submit_button("Validar y Generar PDF de Sede")
@@ -421,10 +423,10 @@ elif st.session_state.menu_actual == "sede":
                 st.session_state.form_valido = False
             else:
                 todas_p_sede = [item for _, lista in etapas_sede for item in lista]
-                sin_resp_sede = [p[0] for p, k in zip(todas_p_sede, [i[1] for i in todas_p_sede]) if respuestas_sede[k] == "-- Seleccione --"]
+                sin_resp_sede = [p[0] for p in todas_p_sede if respuestas_sede[p[1]] == "-- Seleccione --"]
                 
                 if sin_resp_sede:
-                    st.error(f"⚠️ Faltan preguntas por responder. Debes completar las 15 preguntas. (Pendientes: {len(sin_resp_sede)})")
+                    st.error(f"⚠️ Faltan preguntas por responder. Debes completar las 12 preguntas. (Pendientes: {len(sin_resp_sede)})")
                     st.session_state.form_valido = False
                 else:
                     placa_limpia = placa_sede.strip().upper().replace(" ", "_")
@@ -477,10 +479,10 @@ elif st.session_state.menu_actual == "sede":
                             obs_limpia = obs.encode('latin-1', 'ignore').decode('latin-1')
                             
                             pdf.cell(10, 6, str(item_contador), 1, 0, "C")
-                            pdf.cell(100, 6, texto_limpio, 1, 0, "L")
+                            pdf.cell(100, 6, texto_limpio[:70], 1, 0, "L")
                             pdf.cell(10, 6, marca_si, 1, 0, "C")
                             pdf.cell(10, 6, marca_no, 1, 0, "C")
-                            pdf.cell(60, 6, obs_limpia, 1, 1, "L")
+                            pdf.cell(60, 6, obs_limpia[:35], 1, 1, "L")
                             
                             item_contador += 1
                         pdf.ln(2)
@@ -505,8 +507,7 @@ elif st.session_state.menu_actual == "sede":
             mime="application/pdf"
         )
 
-
-# --- MÓDULO 3: BÚSQUEDA DE TRÁMITES EN ARCHIVO (14 Preguntas) ---
+# --- MÓDULO 3: BÚSQUEDA DE TRÁMITES EN ARCHIVO ---
 elif st.session_state.menu_actual == "archivo":
     if st.button("⬅ Volver al Menú Principal"):
         cambiar_seccion("inicio")
@@ -516,28 +517,25 @@ elif st.session_state.menu_actual == "archivo":
     
     etapas_archivo = [
         ("ETAPA 1 - VALIDACIÓN DE DATOS", [
-            ("1. Placa verificada en formato correcto", "arch_e1_p1"),
+            ("1. El formato de la placa se encuentra correcto", "arch_e1_p1"),
             ("2. Verificación de estado del automotor (Activo u otro que afecte la información física del expediente)", "arch_e1_p2")
         ]),
         ("ETAPA 2 - CONTROLES DE ARCHIVO", [
             ("3. Registro histórico por placa", "arch_e2_p3"),
-            ("4. Busqueda de escaneos recientes", "arch_e2_p4")
+            ("4. Búsqueda de escaneos recientes", "arch_e2_p4")
         ]),
         ("ETAPA 3 - ENVIADOS EN CONTENEDORES (ARCHIVO)", [
-            ("5. Contenedores recibido a partir de la fecha del trámite (Contar dos semana)", "arch_e3_p5"),
-            ("6. Contenedor pendiente de apertura", "arch_e3_p6"),
+            ("5. Contenedores recibidos a partir de la fecha del trámite (Contar dos semanas)", "arch_e3_p5"),
+            ("6. Contenedor pendiente por revisión (Que llega de la sede)", "arch_e3_p6"),
             ("7. Error de digitación del contenedor", "arch_e3_p7")
         ]),
-        ("ETAPA 4 - BÚSQUEDA POR SEMANA DEL TRÁMITE (SEDE)", [
-            ("8. Trámites realizados a partir de la fecha del trámite (Contar dos semana)", "arch_e4_p8"),
-            ("9. Revisión de listado de trámites contando dos semanas a partir de la fecha del trámite para busqueda", "arch_e4_p9"),
-            ("10. Error de digitación del contenedor", "arch_e4_p10"),
-            ("11. Remisión al archivo de listado de trámites recibidos en mensajería, contando dos semanas a partir de la fecha del trámite para busqueda", "arch_e4_p11")
+        ("ETAPA 4 - BÚSQUEDA POR SEMANA DEL TRÁMITE", [
+            ("8. Trámites realizados a partir de la fecha del trámite (Contar dos semanas)", "arch_e4_p8"),
+            ("9. Revisión de listado de trámites contando dos semanas a partir de la fecha del trámite", "arch_e4_p9")
         ]),
         ("ETAPA 5 - BÚSQUEDA POR ANALISTA", [
-            ("12. Trámites gestionados por el mismo analista a partir de la fecha del trámite (Contar dos semana)", "arch_e5_p12"),
-            ("13. Documentos físicos del analista", "arch_e5_p13"),
-            ("14. Confirmación directa con el analista", "arch_e5_p14")
+            ("10. Trámites gestionados por el mismo analista a partir de la fecha del trámite (Contar dos semanas)", "arch_e5_p10"),
+            ("11. Documentos físicos del analista", "arch_e5_p11")
         ])
     ]
     
@@ -554,7 +552,6 @@ elif st.session_state.menu_actual == "archivo":
             fecha_arch = st.date_input("Fecha:")
             
         st.divider()
-        st.subheader("Cuestionario de Verificación - Trámites en Archivo (14 Preguntas)")
         
         respuestas_arch = {}
         obs_arch = {}
@@ -563,8 +560,19 @@ elif st.session_state.menu_actual == "archivo":
             st.markdown(f"### **{nombre_etapa}**")
             for texto_pregunta, key in lista_preguntas:
                 st.markdown(f"**{texto_pregunta}**")
-                respuestas_arch[key] = st.radio("Opción:", ["-- Seleccione --", "Sí", "No"], key=f"r_{key}", label_visibility="collapsed", horizontal=True)
-                obs_arch[key] = st.text_input(f"Observaciones {key}", key=f"obs_{key}", placeholder="Observaciones opcionales...", label_visibility="collapsed")
+                respuestas_arch[key] = st.radio(
+                    "Opción:", 
+                    ["-- Seleccione --", "Sí", "No"], 
+                    key=f"r_{key}", 
+                    label_visibility="collapsed", 
+                    horizontal=True
+                )
+                obs_arch[key] = st.text_input(
+                    f"Observaciones {key}", 
+                    key=f"obs_{key}", 
+                    placeholder="Observaciones opcionales...", 
+                    label_visibility="collapsed"
+                )
                 st.write("---")
 
         submit_arch = st.form_submit_button("Validar y Generar PDF de Archivo")
@@ -575,10 +583,10 @@ elif st.session_state.menu_actual == "archivo":
                 st.session_state.form_valido = False
             else:
                 todas_p_arch = [item for _, lista in etapas_archivo for item in lista]
-                sin_resp_arch = [p[0] for p, k in zip(todas_p_arch, [i[1] for i in todas_p_arch]) if respuestas_arch[k] == "-- Seleccione --"]
+                sin_resp_arch = [p[0] for p in todas_p_arch if respuestas_arch[p[1]] == "-- Seleccione --"]
                 
                 if sin_resp_arch:
-                    st.error(f"⚠️ Faltan preguntas por responder. Debes completar las 14 preguntas. (Pendientes: {len(sin_resp_arch)})")
+                    st.error(f"⚠️ Faltan preguntas por responder. Debes completar las 11 preguntas. (Pendientes: {len(sin_resp_arch)})")
                     st.session_state.form_valido = False
                 else:
                     placa_limpia = placa_arch.strip().upper().replace(" ", "_")
@@ -631,10 +639,10 @@ elif st.session_state.menu_actual == "archivo":
                             obs_limpia = obs.encode('latin-1', 'ignore').decode('latin-1')
                             
                             pdf.cell(10, 6, str(item_contador), 1, 0, "C")
-                            pdf.cell(100, 6, texto_limpio, 1, 0, "L")
+                            pdf.cell(100, 6, texto_limpio[:70], 1, 0, "L")
                             pdf.cell(10, 6, marca_si, 1, 0, "C")
                             pdf.cell(10, 6, marca_no, 1, 0, "C")
-                            pdf.cell(60, 6, obs_limpia, 1, 1, "L")
+                            pdf.cell(60, 6, obs_limpia[:35], 1, 1, "L")
                             
                             item_contador += 1
                         pdf.ln(2)
