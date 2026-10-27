@@ -11,7 +11,7 @@ st.set_page_config(
 )
 
 # ============================
-# CSS: TEXTO BLANCO GLOBAL
+# CSS: TEXTO BLANCO FUERTE
 # ============================
 st.markdown("""
     <style>
@@ -20,43 +20,39 @@ st.markdown("""
         background-color: #1e2229 !important;
     }
 
-    /* Títulos y textos generales en blanco */
+    /* ===== FORZAR TEXTO BLANCO EN TODA LA APP ===== */
     h1, h2, h3, h4, h5, h6,
+    p, span, div, label, strong, em,
     .stMarkdown,
     [data-testid="stMarkdownContainer"],
     [data-testid="stMarkdownContainer"] p,
     [data-testid="stMarkdownContainer"] strong,
+    [data-testid="stMarkdownContainer"] span,
     [data-testid="stWidgetLabel"],
-    [data-testid="stWidgetLabel"] p {
-        color: #ffffff !important;
-    }
-
-    /* Etiquetas de inputs, fechas y radios */
-    label,
-    .stTextInput label,
-    .stDateInput label,
+    [data-testid="stWidgetLabel"] p,
+    [data-testid="stWidgetLabel"] span,
     .stRadio label,
     div[role="radiogroup"] label,
-    [data-testid="stWidgetLabel"] p {
+    .stTextInput label,
+    .stDateInput label,
+    .stTextArea label {
         color: #ffffff !important;
-        font-weight: 600 !important;
     }
 
-    /* Texto de las preguntas */
+    /* Preguntas y textos secundarios */
     .stMarkdown p,
-    [data-testid="stMarkdownContainer"] p,
-    [data-testid="stMarkdownContainer"] strong {
+    [data-testid="stMarkdownContainer"] p {
         color: #f5f5f5 !important;
     }
 
-    /* Placeholders visibles */
+    /* Placeholders más visibles */
     input::placeholder,
     textarea::placeholder {
         color: #bbbbbb !important;
         opacity: 1 !important;
     }
 
-    /* Formulario */
+    /* Formulario oscuro */
     [data-testid="stForm"] {
         background-color: #121212 !important;
         padding: 30px;
@@ -146,7 +142,6 @@ def cambiar_seccion(seccion):
 try:
     PASSWORD = st.secrets["APP_PASSWORD"]
 except Exception:
-    # Cambia esta línea por tu contraseña solo para pruebas locales
     PASSWORD = "Archivo159*"
 
 
@@ -459,22 +454,21 @@ elif st.session_state.menu_actual == "sede":
             ("2. Verificación de estado del automotor (Activo u otro que afecte la información física)", "sede_e1_p2")
         ]),
         ("ETAPA 2 - CONTROLES DE ARCHIVO", [
-            ("3. Registro trazabilidad de trámites", "sede_e2_p3")
+            ("3. Revisión último inventario documental", "sede_e2_p3"),
+            ("4. Registro trazabilidad de trámites", "sede_e2_p4"),
+            ("5. Registro trazabilidad de préstamos", "sede_e2_p5"),
+            ("6. Búsqueda de escaneos recientes", "sede_e2_p6")
         ]),
-        ("ETAPA 3 - BÚSQUEDA POR ANALISTA", [
-            ("4. Documentos físicos del analista", "sede_e3_p4"),
-            ("5. Confirmación directa con el analista", "sede_e3_p5")
+        ("ETAPA 3 - BÚSQUEDA FÍSICA DIRECTA", [
+            ("7. Revisión ubicación física del expediente", "sede_e3_p7"),
+            ("8. Expedientes contiguos revisados (En formato Cruz)", "sede_e3_p8")
         ]),
-        ("ETAPA 4 - BÚSQUEDA POR SEMANA DEL TRÁMITE (SEDE)", [
-            ("6. Contenedores enviados a partir de la fecha del trámite (Contar dos semanas)", "sede_e4_p6"),
-            ("7. Contenedor pendiente de apertura", "sede_e4_p7"),
-            ("8. Error de digitación del contenedor", "sede_e4_p8")
-        ]),
-        ("ETAPA 5 - BUSQUEDA POR TRÁMITES GESTIONADOS Y RECIBIDOS", [
-            ("9. Trámites gestionados por el mismo analista a partir de la fecha del trámite (Contar dos semanas)", "sede_e5_p9"),
-            ("10. Remisión a archivo de trámites gestionados por el mismo analista a partir de la fecha del trámite contando dos semanas", "sede_e5_p10"),
-            ("11. Remisión al archivo de listado de trámites de todos los analistas de la sede contando dos semanas", "sede_e5_p11"),
-            ("12. Remisión al archivo de listado de trámites recibidos en mensajería, contando dos semanas", "sede_e5_p12")
+        ("ETAPA 4 - BÚSQUEDA POR VARIACIONES", [
+            ("9. Letras y números similares", "sede_e4_p9"),
+            ("10. Placas con una letra diferente", "sede_e4_p10"),
+            ("11. Placas con un número diferente", "sede_e4_p11"),
+            ("12. Placas con cambio letra/número similar (O-0, 1-I, B-8)", "sede_e4_p12"),
+            ("13. Rango alfabético inmediato (antes y después)", "sede_e4_p13")
         ])
     ]
 
@@ -536,7 +530,7 @@ elif st.session_state.menu_actual == "sede":
 
                 if sin_resp_sede:
                     st.error(
-                        f"⚠️ Faltan preguntas por responder. Debes completar las 12 preguntas. "
+                        f"⚠️ Faltan preguntas por responder. Debes completar las 13 preguntas. "
                         f"(Pendientes: {len(sin_resp_sede)})"
                     )
                     st.session_state.form_valido = False
@@ -585,24 +579,22 @@ elif st.session_state.menu_actual == "archivo":
     etapas_archivo = [
         ("ETAPA 1 - VALIDACIÓN DE DATOS", [
             ("1. El formato de la placa se encuentra correcto", "arch_e1_p1"),
-            ("2. Verificación de estado del automotor (Activo u otro que afecte la información física del expediente)", "arch_e1_p2")
+            ("2. Verificación de estado del automotor (Activo u otro que afecte la información física)", "arch_e1_p2")
         ]),
         ("ETAPA 2 - CONTROLES DE ARCHIVO", [
-            ("3. Registro histórico por placa", "arch_e2_p3"),
-            ("4. Búsqueda de escaneos recientes", "arch_e2_p4")
+            ("3. Revisión último inventario documental", "arch_e2_p3"),
+            ("4. Registro trazabilidad de trámites", "arch_e2_p4"),
+            ("5. Registro trazabilidad de préstamos", "arch_e2_p5"),
+            ("6. Búsqueda de escaneos recientes", "arch_e2_p6")
         ]),
-        ("ETAPA 3 - ENVIADOS EN CONTENEDORES (ARCHIVO)", [
-            ("5. Contenedores recibidos a partir de la fecha del trámite (Contar dos semanas)", "arch_e3_p5"),
-            ("6. Contenedor pendiente por revisión (Que llega de la sede)", "arch_e3_p6"),
-            ("7. Error de digitación del contenedor", "arch_e3_p7")
+        ("ETAPA 3 - BÚSQUEDA FÍSICA DIRECTA", [
+            ("7. Revisión ubicación física del expediente", "arch_e3_p7"),
+            ("8. Expedientes contiguos revisados (En formato Cruz)", "arch_e3_p8")
         ]),
-        ("ETAPA 4 - BÚSQUEDA POR SEMANA DEL TRÁMITE", [
-            ("8. Trámites realizados a partir de la fecha del trámite (Contar dos semanas)", "arch_e4_p8"),
-            ("9. Revisión de listado de trámites contando dos semanas a partir de la fecha del trámite", "arch_e4_p9")
-        ]),
-        ("ETAPA 5 - BÚSQUEDA POR ANALISTA", [
-            ("10. Trámites gestionados por el mismo analista a partir de la fecha del trámite (Contar dos semanas)", "arch_e5_p10"),
-            ("11. Documentos físicos del analista", "arch_e5_p11")
+        ("ETAPA 4 - BÚSQUEDA POR VARIACIONES", [
+            ("9. Letras y números similares", "arch_e4_p9"),
+            ("10. Placas con una letra diferente", "arch_e4_p10"),
+            ("11. Placas con un número diferente", "arch_e4_p11")
         ])
     ]
 
