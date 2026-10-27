@@ -10,7 +10,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Estilos CSS personalizados
+# Estilos CSS personalizados (mejorados para legibilidad)
 st.markdown("""
     <style>
     .stApp {
@@ -40,11 +40,59 @@ st.markdown("""
         border: 1px solid #2a2a2a;
     }
 
-    [data-testid="stForm"] label {
+    /* ========== TEXTOS MÁS BLANCOS Y LEGIBLES ========== */
+
+    /* Títulos de sección (Información General, etc.) */
+    [data-testid="stForm"] h3,
+    [data-testid="stForm"] .stMarkdown h3,
+    [data-testid="stForm"] [data-testid="stMarkdownContainer"] h3 {
         color: #ffffff !important;
-        font-weight: 600;
+        font-weight: 700 !important;
     }
 
+    /* Subtítulos y encabezados de etapas */
+    [data-testid="stForm"] h2,
+    [data-testid="stForm"] .stMarkdown h2 {
+        color: #ffffff !important;
+    }
+
+    /* Labels de los inputs (Identificador, Placa, etc.) */
+    [data-testid="stForm"] label,
+    [data-testid="stForm"] .stTextInput label,
+    [data-testid="stForm"] .stDateInput label {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+
+    /* Texto de las preguntas (markdown) */
+    [data-testid="stForm"] .stMarkdown p,
+    [data-testid="stForm"] .stMarkdown strong,
+    [data-testid="stForm"] [data-testid="stMarkdownContainer"] p,
+    [data-testid="stForm"] [data-testid="stMarkdownContainer"] strong {
+        color: #f0f0f0 !important;
+    }
+
+    /* Opciones del radio (Seleccione, Sí, No) */
+    [data-testid="stForm"] .stRadio label,
+    [data-testid="stForm"] [data-testid="stWidgetLabel"] p,
+    [data-testid="stForm"] .stRadio > div > label,
+    [data-testid="stForm"] div[role="radiogroup"] label {
+        color: #ffffff !important;
+        font-weight: 500 !important;
+    }
+
+    /* Texto dentro de los radios */
+    [data-testid="stForm"] .stRadio [data-testid="stMarkdownContainer"] p {
+        color: #ffffff !important;
+    }
+
+    /* Placeholders más visibles */
+    [data-testid="stForm"] input::placeholder {
+        color: #aaaaaa !important;
+        opacity: 1 !important;
+    }
+
+    /* Títulos principales */
     .main-title {
         text-align: center;
         color: #ffffff !important;
@@ -57,6 +105,7 @@ st.markdown("""
         margin-bottom: 30px;
     }
     
+    /* Botones (se mantienen igual) */
     .stButton > button,
     [data-testid="stFormSubmitButton"] button {
         width: 100%;
@@ -136,7 +185,7 @@ if not st.session_state.autenticado:
             btn_login = st.form_submit_button("Ingresar al Sistema")
             
             if btn_login:
-                if password == "Archivo123":
+                if password == "Archivo159*":
                     st.session_state.autenticado = True
                     st.success("¡Acceso concedido!")
                     st.rerun()
@@ -318,7 +367,7 @@ elif st.session_state.menu_actual == "expedientes":
                             obs_limpia = obs.encode('latin-1', 'ignore').decode('latin-1')
                             
                             pdf.cell(10, 6, str(item_contador), 1, 0, "C")
-                            pdf.cell(100, 6, texto_limpio[:70], 1, 0, "L")  # Truncar si es muy largo
+                            pdf.cell(100, 6, texto_limpio[:70], 1, 0, "L")
                             pdf.cell(10, 6, marca_si, 1, 0, "C")
                             pdf.cell(10, 6, marca_no, 1, 0, "C")
                             pdf.cell(60, 6, obs_limpia[:35], 1, 1, "L")
