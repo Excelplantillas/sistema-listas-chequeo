@@ -134,6 +134,7 @@ if "nombre_archivo_pdf" not in st.session_state:
 def cambiar_seccion(seccion):
     st.session_state.menu_actual = seccion
     st.session_state.form_valido = False
+    st.session_state.pdf_path = None
 
 
 # ============================
@@ -143,6 +144,50 @@ try:
     PASSWORD = st.secrets["APP_PASSWORD"]
 except Exception:
     PASSWORD = "Archivo159*"
+
+
+# ============================
+# FUNCIONES AUXILIARES PARA PDF
+# ============================
+def _limpiar_latin1(texto):
+    if not texto:
+        return ""
+    return str(texto).encode("latin-1", "replace").decode("latin-1")
+
+
+def _contar_lineas(pdf, texto, ancho_celda, padding=2):
+    texto = _limpiar_latin1(texto)
+    if not texto:
+        return 1
+    ancho_util = max(ancho_celda - padding, 1)
+    lineas_total = 0
+    for parrafo in texto.split("\n"):
+        if not parrafo:
+            lineas_total += 1
+            continue
+        palabras = parrafo.split(" ")
+        linea_actual = ""
+        for palabra in palabras:
+            prueba = f"{linea_actual} {palabra}".strip()
+            if pdf.get_string_width(prueba) <= ancho_util:
+                linea_actual = prueba
+            else:
+                if linea_actual:
+                    lineas_total += 1
+                if pdf.get_string_width(palabra) > ancho_util:
+                    trozo = ""
+                    for ch in palabra:
+                        if pdf.get_string_width(trozo + ch) <= ancho_util:
+                            trozo += ch
+                        else:
+                            lineas_total += 1
+                            trozo = ch
+                    linea_actual = trozo
+                else:
+                    linea_actual = palabra
+        if linea_actual:
+            lineas_total += 1
+    return max(lineas_total, 1)
 
 
 # ============================
@@ -167,38 +212,52 @@ def generar_pdf(
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
+    # Anchos totales = 190 mm
+    w_item = 12
+    w_act = 96
+    w_si = 10
+    w_no = 10
+    w_obs = 62
+    alto_linea = 5.0
+
     pdf.set_font("Arial", "B", 12)
     pdf.set_text_color(31, 78, 120)
-    pdf.cell(0, 8, titulo, 0, 1, "C")
+    pdf.multi_cell(0, 8, _limpiar_latin1(titulo), 0, "C")
     pdf.ln(3)
 
     pdf.set_font("Arial", "B", 9)
     pdf.set_text_color(0, 0, 0)
 
-    pdf.cell(95, 6, f"Identificador: {identificador}", 0, 0)
-    pdf.cell(95, 6, f"Expediente / Documento: {expediente}", 0, 1)
-    pdf.cell(95, 6, f"Placa: {placa.strip().upper()}", 0, 0)
-    pdf.cell(95, 6, f"Responsable de Busqueda: {responsable}", 0, 1)
-    pdf.cell(95, 6, f"Area Solicitante: {area}", 0, 0)
-    pdf.cell(95, 6, f"Fecha: {fecha}", 0, 1)
+    pdf.cell(95, 6, _limpiar_latin1(f"Identificador: {identificador}"), 0, 0)
+    pdf.cell(95, 6, _limpiar_latin1(f"Expediente / Documento: {expediente}"), 0, 1)
+    pdf.cell(95, 6, _limpiar_latin1(f"Placa: {placa.strip().upper()}"), 0, 0)
+    pdf.cell(95, 6, _limpiar_latin1(f"Responsable de Busqueda: {responsable}"), 0, 1)
+    pdf.cell(95, 6, _limpiar_latin1(f"Area Solicitante: {area}"), 0, 0)
+    pdf.cell(95, 6, _limpiar_latin1(f"Fecha: {fecha}"), 0, 1)
     pdf.ln(5)
 
     item_contador = 1
 
     for nombre_etapa, lista_preguntas in etapas:
-        etapa_limpia = nombre_etapa.encode("latin-1", "ignore").decode("latin-1")
+        etapa_limpia = _limpiar_latin1(nombre_etapa)
 
         pdf.set_font("Arial", "B", 9)
         pdf.set_fill_color(220, 230, 242)
-        pdf.cell(190, 6, etapa_limpia, 1, 1, "L", True)
+        lineas_etapa = _contar_lineas(pdf, etapa_limpia, 190)
+        alto_etapa = max(6.0, lineas_etapa * 5.5)
+        x_ini = pdf.get_x()
+        y_ini = pdf.get_y()
+        pdf.rect(x_ini, y_ini, 190, alto_etapa, "DF")
+        pdf.multi_cell(190, alto_etapa / lineas_etapa, etapa_limpia, 0, "L")
+        pdf.set_xy(x_ini, y_ini + alto_etapa)
 
         pdf.set_font("Arial", "B", 8)
         pdf.set_fill_color(240, 240, 240)
-        pdf.cell(10, 6, "ITEM", 1, 0, "C", True)
-        pdf.cell(100, 6, "ACTIVIDAD", 1, 0, "C", True)
-        pdf.cell(10, 6, "SI", 1, 0, "C", True)
-        pdf.cell(10, 6, "NO", 1, 0, "C", True)
-        pdf.cell(60, 6, "OBSERVACIONES", 1, 1, "C", True)
+        pdf.cell(w_item, 6, "ITEM", 1, 0, "C", True)
+        pdf.cell(w_act, 6, "ACTIVIDAD", 1, 0, "C", True)
+        pdf.cell(w_si, 6, "SI", 1, 0, "C", True)
+        pdf.cell(w_no, 6, "NO", 1, 0, "C", True)
+        pdf.cell(w_obs, 6, "OBSERVACIONES", 1, 1, "C", True)
 
         pdf.set_font("Arial", "", 8)
 
@@ -210,15 +269,51 @@ def generar_pdf(
             marca_no = "X" if respuesta == "No" else ""
 
             texto_limpio = texto_pregunta.split(". ", 1)[1] if ". " in texto_pregunta else texto_pregunta
-            texto_limpio = texto_limpio.encode("latin-1", "ignore").decode("latin-1")
-            observacion_limpia = observacion.encode("latin-1", "ignore").decode("latin-1")
+            texto_limpio = _limpiar_latin1(texto_limpio)
+            observacion_limpia = _limpiar_latin1(observacion)
 
-            pdf.cell(10, 6, str(item_contador), 1, 0, "C")
-            pdf.cell(100, 6, texto_limpio[:70], 1, 0, "L")
-            pdf.cell(10, 6, marca_si, 1, 0, "C")
-            pdf.cell(10, 6, marca_no, 1, 0, "C")
-            pdf.cell(60, 6, observacion_limpia[:35], 1, 1, "L")
+            lineas_act = _contar_lineas(pdf, texto_limpio, w_act)
+            lineas_obs = _contar_lineas(pdf, observacion_limpia, w_obs)
+            num_lineas = max(lineas_act, lineas_obs, 1)
+            alto_fila = max(6.0, num_lineas * alto_linea)
 
+            if pdf.get_y() + alto_fila > pdf.page_break_trigger:
+                pdf.add_page()
+                pdf.set_font("Arial", "B", 8)
+                pdf.set_fill_color(240, 240, 240)
+                pdf.cell(w_item, 6, "ITEM", 1, 0, "C", True)
+                pdf.cell(w_act, 6, "ACTIVIDAD", 1, 0, "C", True)
+                pdf.cell(w_si, 6, "SI", 1, 0, "C", True)
+                pdf.cell(w_no, 6, "NO", 1, 0, "C", True)
+                pdf.cell(w_obs, 6, "OBSERVACIONES", 1, 1, "C", True)
+                pdf.set_font("Arial", "", 8)
+
+            x0 = pdf.get_x()
+            y0 = pdf.get_y()
+
+            pdf.rect(x0, y0, w_item, alto_fila)
+            pdf.rect(x0 + w_item, y0, w_act, alto_fila)
+            pdf.rect(x0 + w_item + w_act, y0, w_si, alto_fila)
+            pdf.rect(x0 + w_item + w_act + w_si, y0, w_no, alto_fila)
+            pdf.rect(x0 + w_item + w_act + w_si + w_no, y0, w_obs, alto_fila)
+
+            pdf.set_xy(x0, y0 + (alto_fila - alto_linea) / 2)
+            pdf.cell(w_item, alto_linea, str(item_contador), 0, 0, "C")
+
+            pdf.set_xy(x0 + w_item, y0 + 0.5)
+            pdf.multi_cell(w_act, alto_linea, texto_limpio, 0, "L")
+
+            y_centro = y0 + (alto_fila - alto_linea) / 2
+            pdf.set_xy(x0 + w_item + w_act, y_centro)
+            pdf.cell(w_si, alto_linea, marca_si, 0, 0, "C")
+
+            pdf.set_xy(x0 + w_item + w_act + w_si, y_centro)
+            pdf.cell(w_no, alto_linea, marca_no, 0, 0, "C")
+
+            pdf.set_xy(x0 + w_item + w_act + w_si + w_no, y0 + 0.5)
+            pdf.multi_cell(w_obs, alto_linea, observacion_limpia, 0, "L")
+
+            pdf.set_xy(x0, y0 + alto_fila)
             item_contador += 1
 
         pdf.ln(2)
