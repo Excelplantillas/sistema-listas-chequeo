@@ -451,7 +451,7 @@ elif st.session_state.menu_actual == "sede":
     etapas_sede = [
         ("ETAPA 1 - VALIDACIÓN DE DATOS", [
             ("1. El formato de la placa se encuentra correcto", "sede_e1_p1"),
-            ("2. Verificación de estado del automotor (Activo u otro que afecte la información física)", "sede_e1_p2")
+            ("2. Verificación de estado del automotor (Activo u otro que afecte la información física del expediente).", "sede_e1_p2")
         ]),
         ("ETAPA 2 - CONTROLES DE ARCHIVO", [
             ("3. Registro trazabilidad de trámites.", "sede_e2_p3")
